@@ -16,6 +16,11 @@ class TripComplete(BaseModel):
 
 @router.post("/", response_model=TripResponse)
 def create_trip(trip: TripCreate, db: Session = Depends(get_db)):
+    # Check for duplicate trip_code
+    existing = db.query(Trip).filter(Trip.trip_code == trip.trip_code).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Trip with this code already exists")
+    
     vehicle = db.query(Vehicle).filter(Vehicle.id == trip.vehicle_id).first()
     driver = db.query(Driver).filter(Driver.id == trip.driver_id).first()
 

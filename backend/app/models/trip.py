@@ -2,6 +2,7 @@ import uuid, enum
 from sqlalchemy import String, Enum, Numeric, ForeignKey, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from typing import Optional
 from app.core.database import Base
 
 class TripStatus(str, enum.Enum):
@@ -22,9 +23,9 @@ class Trip(Base):
     destination: Mapped[str] = mapped_column(Text, nullable=False)
     cargo_weight_kg: Mapped[float] = mapped_column(Numeric(10,2), nullable=False)
 
-    revenue: Mapped[float] = mapped_column(Numeric(12,2))
-    start_odometer: Mapped[float] = mapped_column(Numeric(12,2))
-    end_odometer: Mapped[float] = mapped_column(Numeric(12,2))
+    revenue: Mapped[Optional[float]] = mapped_column(Numeric(12,2), nullable=True)
+    start_odometer: Mapped[Optional[float]] = mapped_column(Numeric(12,2), nullable=True)
+    end_odometer: Mapped[Optional[float]] = mapped_column(Numeric(12,2), nullable=True)
 
     status: Mapped[TripStatus] = mapped_column(Enum(TripStatus), default=TripStatus.DISPATCHED)
 

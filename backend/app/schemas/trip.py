@@ -12,7 +12,7 @@ class TripBase(BaseModel):
 
 class TripCreate(TripBase):
     revenue: float | None = None
-    start_odometer: float | None = None
+    # start_odometer is auto-set from vehicle, not user input
 
 class TripUpdate(BaseModel):
     status: TripStatus | None = None

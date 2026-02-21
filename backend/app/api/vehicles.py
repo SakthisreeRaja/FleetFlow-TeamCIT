@@ -9,6 +9,14 @@ router = APIRouter(prefix="/vehicles", tags=["Vehicles"])
 
 @router.post("/", response_model=VehicleResponse)
 def create_vehicle(vehicle: VehicleCreate, db: Session = Depends(get_db)):
+    # Check for duplicate vehicle_code or license_plate
+    existing = db.query(Vehicle).filter(
+        (Vehicle.vehicle_code == vehicle.vehicle_code) | 
+        (Vehicle.license_plate == vehicle.license_plate)
+    ).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Vehicle with this code or license plate already exists")
+    
     db_vehicle = Vehicle(**vehicle.model_dump())
     db.add(db_vehicle)
     db.commit()
