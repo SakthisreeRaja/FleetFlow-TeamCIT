@@ -5,25 +5,35 @@ function VehicleTable({ vehicles, onViewVehicle, onEditVehicle, onDeleteVehicle 
   const [searchTerm, setSearchTerm] = useState("");
 
   const getStatusColor = (status) => {
+    if (!status) return "text-gray-600 bg-gray-50";
+    
     switch (status.toLowerCase()) {
       case "ready":
+      case "available":
         return "text-green-600 bg-green-50";
       case "on trip":
+      case "on_trip":
         return "text-[#8B1E3F] bg-[#FDF2F5]";
       case "maintenance":
-        return "text-yellow-600 bg-yellow-50";
       case "in shop":
-        return "text-red-600 bg-red-50";
+      case "in_shop":
+        return "text-yellow-600 bg-yellow-50";
       default:
         return "text-gray-600 bg-gray-50";
     }
   };
 
-  const filteredVehicles = vehicles.filter((vehicle) =>
-    vehicle.plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    vehicle.type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredVehicles = vehicles.filter((vehicle) => {
+    const plate = vehicle.license_plate || vehicle.plate || "";
+    const model = vehicle.model || "";
+    const type = vehicle.vehicle_type || vehicle.type || "";
+    
+    return (
+      plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      type.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
@@ -79,25 +89,25 @@ function VehicleTable({ vehicles, onViewVehicle, onEditVehicle, onDeleteVehicle 
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredVehicles.map((vehicle) => (
+            {filteredVehicles.map((vehicle, index) => (
               <tr
                 key={vehicle.id}
                 className="hover:bg-[#FDF2F5] transition-colors"
               >
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
-                  {vehicle.id}
+                  {index + 1}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {vehicle.plate}
+                  {vehicle.license_plate || vehicle.plate}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                   {vehicle.model}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {vehicle.type}
+                  {vehicle.vehicle_type || vehicle.type}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {vehicle.odometer} km
+                  {vehicle.odometer_km || vehicle.odometer} km
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(vehicle.status)}`}>

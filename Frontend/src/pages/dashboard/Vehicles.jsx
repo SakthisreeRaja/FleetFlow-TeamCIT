@@ -34,13 +34,19 @@ function Vehicles() {
 
   const handleAddVehicle = async (formData) => {
     try {
-      await vehiclesService.createVehicle(formData);
+      if (editingVehicle) {
+        // Update existing vehicle
+        await vehiclesService.updateVehicle(editingVehicle.id, formData);
+      } else {
+        // Create new vehicle
+        await vehiclesService.createVehicle(formData);
+      }
       await fetchVehicles();
       setShowForm(false);
       setEditingVehicle(null);
     } catch (err) {
-      setError("Failed to add vehicle. Please try again.");
-      console.error("Error adding vehicle:", err);
+      setError(editingVehicle ? "Failed to update vehicle. Please try again." : "Failed to add vehicle. Please try again.");
+      console.error("Error saving vehicle:", err);
     }
   };
 
@@ -93,12 +99,9 @@ function Vehicles() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-800 mb-1">
+          <h1 className="text-2xl font-semibold text-gray-800">
             Vehicle Registry (Asset Management)
           </h1>
-          <p className="text-sm text-gray-500">
-            Manage your entire fleet of vehicles
-          </p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}

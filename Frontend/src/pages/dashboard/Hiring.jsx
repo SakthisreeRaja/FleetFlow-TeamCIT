@@ -50,12 +50,9 @@ function Hiring() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-800 mb-1">
+          <h1 className="text-2xl font-semibold text-gray-800">
             Expense & Fuel Logging
           </h1>
-          <p className="text-sm text-gray-500">
-            Track fuel costs and trip expenses
-          </p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
@@ -64,27 +61,6 @@ function Hiring() {
           <PlusIcon className="w-4 h-4" />
           {showForm ? "Hide Form" : "Add an Expense"}
         </button>
-      </div>
-
-      {/* Info Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <div className="text-sm text-gray-600 space-y-3">
-          <p className="font-semibold text-gray-800">
-            What it's for: This is the digital "wallet" for your fleet. It tracks exactly how much money is being spent to keep your vehicles moving.
-          </p>
-          <div>
-            <p className="font-medium text-gray-700 mb-2">How it Works:</p>
-            <p>
-              <span className="font-medium text-[#8B1E3F]">Fuel Tracking:</span> Every time a driver fills up the tank, you record how many liters they bought and how much it cost.
-            </p>
-            <p className="mt-2">
-              <span className="font-medium text-green-600">Cost per Vehicle:</span> The system automatically connects these receipts to the specific vehicle used.
-            </p>
-            <p className="mt-2 text-gray-700">
-              Over time, the system adds up these fuel costs and the repair bills to show you the "Total Cost" for each vehicle. This helps you see if a specific truck is becoming too expensive to keep.
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Main Grid Layout */}

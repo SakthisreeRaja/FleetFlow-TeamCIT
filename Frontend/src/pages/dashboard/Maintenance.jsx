@@ -53,12 +53,9 @@ function Maintenance() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-800 mb-1">
+          <h1 className="text-2xl font-semibold text-gray-800">
             Maintenance / Service Logs
           </h1>
-          <p className="text-sm text-gray-500">
-            Track vehicle maintenance and repairs
-          </p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
@@ -67,30 +64,6 @@ function Maintenance() {
           <PlusIcon className="w-4 h-4" />
           {showForm ? "Hide Form" : "New Service"}
         </button>
-      </div>
-
-      {/* Info Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <div className="text-sm text-gray-600 space-y-3">
-          <p className="font-semibold text-gray-800">
-            What it's for: This is where you keep your vehicles healthy. It tracks every time a vehicle goes in for a check-up or a repair.
-          </p>
-          <div>
-            <p className="font-medium text-gray-700 mb-2">How it Works:</p>
-            <p>
-              <span className="font-medium text-[#8B1E3F]">Logging a Repair:</span> When a vehicle needs work (like an oil change or new tires), you create a log entry here.
-            </p>
-            <p className="mt-2">
-              <span className="font-medium text-green-600">The Auto-Mark Rule:</span> As soon as you add a vehicle to a maintenance log, the system automatically marks it as "In Shop."
-            </p>
-            <p className="mt-2">
-              <span className="font-medium text-yellow-600">The Blocker:</span> While a vehicle is "In Shop," the dispatcher cannot see or pick it for a new trip.
-            </p>
-            <p className="mt-2 text-gray-700">
-              This prevents you from accidentally sending a broken truck out on a delivery.
-            </p>
-          </div>
-        </div>
       </div>
 
       {/* Main Grid Layout */}

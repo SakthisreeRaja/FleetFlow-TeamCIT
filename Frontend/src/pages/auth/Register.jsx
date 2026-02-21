@@ -41,7 +41,6 @@ function Register() {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    setError(""); // Clear error on input change
   };
 
   const handleSubmit = async (e) => {

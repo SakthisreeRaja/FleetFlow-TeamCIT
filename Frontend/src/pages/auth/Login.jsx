@@ -19,26 +19,30 @@ function Login() {
       ...formData,
       [e.target.name]: e.target.value,
     });
-    setError(""); // Clear error on input change
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setShowNoAccountModal(false);
 
     try {
       await login(formData.email, formData.password);
       navigate("/dashboard");
     } catch (err) {
-      const errorMessage = err.response?.data?.detail || "Login failed. Please check your credentials.";
+      console.error("Login error:", err);
+      
       const statusCode = err.response?.status;
+      const errorDetail = err.response?.data?.detail || err.message;
       
       // Check if error is "No account found" (404 status)
-      if (statusCode === 404 || errorMessage.toLowerCase().includes("no account found")) {
+      if (statusCode === 404 || errorDetail?.toLowerCase().includes("no account found")) {
         setShowNoAccountModal(true);
+      } else if (statusCode === 401) {
+        setError("Invalid password. Please try again.");
       } else {
-        setError(errorMessage);
+        setError(errorDetail || "Login failed. Please check your credentials.");
       }
     } finally {
       setLoading(false);

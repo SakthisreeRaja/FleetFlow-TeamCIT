@@ -48,12 +48,9 @@ function Trips() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-800 mb-1">
+          <h1 className="text-2xl font-semibold text-gray-800">
             Trip Dispatcher & Management
           </h1>
-          <p className="text-sm text-gray-500">
-            Schedule and track all fleet trips
-          </p>
         </div>
         <button
           onClick={() => setShowForm(!showForm)}
@@ -65,30 +62,6 @@ function Trips() {
       </div>
 
       {/* Info Section */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-        <div className="text-sm text-gray-600 space-y-3">
-          <p className="font-semibold text-gray-800">
-            What it's for: This is the "brain" of the operation. It's where you actually set up deliveries and move goods from one place to another.
-          </p>
-          <div>
-            <p className="font-medium text-gray-700 mb-2">How it Works:</p>
-            <p>
-              <span className="font-medium text-[#8B1E3F]">Booking a Trip:</span> You pick a vehicle and a driver that are currently free and ready to go.
-              You enter how much the cargo weighs. If you try to put a 2,000kg load into a 1,000kg van, the system will block you and say, "Too heavy!"
-            </p>
-            <p className="mt-2">
-              The system then tracks the status of the job as it moves through four stages:
-            </p>
-            <ul className="list-disc list-inside mt-2 space-y-1 text-gray-600">
-              <li>Pending - Just created</li>
-              <li>On Way - Driver is en route</li>
-              <li>Completed - Delivery successful</li>
-              <li>Cancelled - Trip was cancelled</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
       {/* Main Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Trip Table */}

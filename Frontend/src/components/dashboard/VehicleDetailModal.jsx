@@ -19,52 +19,40 @@ function VehicleDetailModal({ vehicle, onClose }) {
 
         {/* Content */}
         <div className="p-6 space-y-6">
-          <div className="text-center pb-6 border-b border-gray-200">
-            <div className="text-sm text-gray-500 mb-2">
-              What it's for: This is your digital garage. It's the place where you add, view, change, or remove every vehicle your company owns.
-            </div>
-            <div className="text-sm text-gray-500">The Details You Track:</div>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 bg-[#F4F6F9] rounded-lg">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                 Name/Model
               </p>
               <p className="text-sm text-gray-800 font-medium">{vehicle.model}</p>
-              <p className="text-xs text-gray-500 mt-1">The specific name/make of the vehicle</p>
             </div>
 
             <div className="p-4 bg-[#F4F6F9] rounded-lg">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                 License Plate
               </p>
-              <p className="text-sm text-gray-800 font-medium">{vehicle.plate}</p>
-              <p className="text-xs text-gray-500 mt-1">The unique ID for each vehicle across the app</p>
+              <p className="text-sm text-gray-800 font-medium">{vehicle.license_plate || vehicle.plate}</p>
             </div>
 
             <div className="p-4 bg-[#F4F6F9] rounded-lg">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                 Type
               </p>
-              <p className="text-sm text-gray-800 font-medium">{vehicle.type}</p>
-              <p className="text-xs text-gray-500 mt-1">Classification of the vehicle</p>
+              <p className="text-sm text-gray-800 font-medium">{vehicle.vehicle_type || vehicle.type}</p>
             </div>
 
             <div className="p-4 bg-[#F4F6F9] rounded-lg">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                 Max Load Capacity
               </p>
-              <p className="text-sm text-gray-800 font-medium">{vehicle.maxPayload || "N/A"}</p>
-              <p className="text-xs text-gray-500 mt-1">How much weight this vehicle can safely carry (in kg or tons)</p>
+              <p className="text-sm text-gray-800 font-medium">{vehicle.max_capacity_kg || vehicle.maxPayload || "N/A"} kg</p>
             </div>
 
             <div className="p-4 bg-[#F4F6F9] rounded-lg md:col-span-2">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                 Odometer
               </p>
-              <p className="text-sm text-gray-800 font-medium">{vehicle.odometer} km</p>
-              <p className="text-xs text-gray-500 mt-1">The current mileage on the vehicle's dashboard</p>
+              <p className="text-sm text-gray-800 font-medium">{vehicle.odometer_km || vehicle.odometer} km</p>
             </div>
 
             <div className="p-4 bg-[#F4F6F9] rounded-lg md:col-span-2">
@@ -72,7 +60,6 @@ function VehicleDetailModal({ vehicle, onClose }) {
                 Status
               </p>
               <p className="text-sm text-gray-800 font-medium">{vehicle.status}</p>
-              <p className="text-xs text-gray-500 mt-1">Current operational status</p>
             </div>
           </div>
         </div>

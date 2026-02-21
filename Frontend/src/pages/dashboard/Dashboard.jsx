@@ -32,8 +32,7 @@ function Dashboard() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-800 mb-1">Fleet Dashboard</h1>
-          <p className="text-sm text-gray-500">Monitor and manage your fleet operations</p>
+          <h1 className="text-2xl font-semibold text-gray-800">Fleet Dashboard</h1>
         </div>
         <div className="flex gap-3">
           <button className="flex items-center gap-2 px-4 py-2.5 bg-[#8B1E3F] text-white rounded-lg hover:bg-[#751932] transition-all duration-200 shadow-sm hover:shadow-md text-sm font-medium">

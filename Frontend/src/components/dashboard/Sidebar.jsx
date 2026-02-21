@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import {
   HomeIcon,
   TruckIcon,
@@ -13,9 +14,10 @@ import {
 function Sidebar({ isOpen, setIsOpen }) {
   const location = useLocation();
   const [activeMenu, setActiveMenu] = useState("Dashboard");
+  const { user } = useAuth();
   
-  // Get user role from localStorage
-  const userRole = localStorage.getItem("userRole") || "Manager";
+  // Get user role from auth context
+  const userRole = user?.role || "Manager";
 
   // All available menu items with role access
   const allMenuItems = [

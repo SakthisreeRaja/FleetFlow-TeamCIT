@@ -3,11 +3,13 @@ import { useState } from "react";
 function VehicleRegistrationForm({ onSubmit, onCancel, initialData = null }) {
   const [formData, setFormData] = useState(
     initialData || {
-      licensePlate: "",
-      maxPayload: "",
-      initialOdometer: "",
-      type: "",
+      vehicle_code: "",
+      license_plate: "",
       model: "",
+      vehicle_type: "",
+      max_capacity_kg: "",
+      odometer_km: "0",
+      acquisition_cost: "",
     }
   );
 
@@ -20,14 +22,26 @@ function VehicleRegistrationForm({ onSubmit, onCancel, initialData = null }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Convert string values to numbers
+    const dataToSubmit = {
+      ...formData,
+      max_capacity_kg: parseFloat(formData.max_capacity_kg),
+      odometer_km: parseFloat(formData.odometer_km),
+      acquisition_cost: parseFloat(formData.acquisition_cost),
+    };
+    
+    onSubmit(dataToSubmit);
+    
     // Reset form
     setFormData({
-      licensePlate: "",
-      maxPayload: "",
-      initialOdometer: "",
-      type: "",
+      vehicle_code: "",
+      license_plate: "",
       model: "",
+      vehicle_type: "",
+      max_capacity_kg: "",
+      odometer_km: "0",
+      acquisition_cost: "",
     });
   };
 
@@ -40,14 +54,14 @@ function VehicleRegistrationForm({ onSubmit, onCancel, initialData = null }) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            License Plate:
+            Vehicle Code
           </label>
           <input
             type="text"
-            name="licensePlate"
-            value={formData.licensePlate}
+            name="vehicle_code"
+            value={formData.vehicle_code}
             onChange={handleChange}
-            placeholder="Enter license plate"
+            placeholder="e.g., VEH-001"
             required
             className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
           />
@@ -55,14 +69,14 @@ function VehicleRegistrationForm({ onSubmit, onCancel, initialData = null }) {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Max Payload:
+            License Plate
           </label>
           <input
             type="text"
-            name="maxPayload"
-            value={formData.maxPayload}
+            name="license_plate"
+            value={formData.license_plate}
             onChange={handleChange}
-            placeholder="e.g., 5000 kg"
+            placeholder="e.g., ABC-1234"
             required
             className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
           />
@@ -70,14 +84,14 @@ function VehicleRegistrationForm({ onSubmit, onCancel, initialData = null }) {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Initial Odometer:
+            Model
           </label>
           <input
-            type="number"
-            name="initialOdometer"
-            value={formData.initialOdometer}
+            type="text"
+            name="model"
+            value={formData.model}
             onChange={handleChange}
-            placeholder="Enter initial odometer reading"
+            placeholder="e.g., TATA LPT 2518"
             required
             className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
           />
@@ -85,16 +99,16 @@ function VehicleRegistrationForm({ onSubmit, onCancel, initialData = null }) {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Type:
+            Vehicle Type
           </label>
           <select
-            name="type"
-            value={formData.type}
+            name="vehicle_type"
+            value={formData.vehicle_type}
             onChange={handleChange}
             required
             className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
           >
-            <option value="">Select vehicle type</option>
+            <option value="">Select type</option>
             <option value="Truck">Truck</option>
             <option value="Van">Van</option>
             <option value="Trailer">Trailer</option>
@@ -104,14 +118,47 @@ function VehicleRegistrationForm({ onSubmit, onCancel, initialData = null }) {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Model:
+            Max Capacity (kg)
           </label>
           <input
-            type="text"
-            name="model"
-            value={formData.model}
+            type="number"
+            step="0.01"
+            name="max_capacity_kg"
+            value={formData.max_capacity_kg}
             onChange={handleChange}
-            placeholder="Enter vehicle model"
+            placeholder="e.g., 5000"
+            required
+            className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Odometer (km)
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            name="odometer_km"
+            value={formData.odometer_km}
+            onChange={handleChange}
+            placeholder="e.g., 15000"
+            required
+            className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Acquisition Cost
+          </label>
+          <input
+            type="number"
+            step="0.01"
+            name="acquisition_cost"
+            value={formData.acquisition_cost}
+            onChange={handleChange}
+            placeholder="e.g., 2500000"
             required
             className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
           />
