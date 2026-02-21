@@ -24,7 +24,7 @@ function Register() {
       try {
         const data = await rolesService.getRoles();
         setRoles(data);
-      } catch (err) {
+      } catch {
         setError("Failed to load roles. Please refresh the page.");
       }
     };

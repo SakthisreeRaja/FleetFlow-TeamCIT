@@ -4,7 +4,7 @@ from uuid import UUID
 from app.core.dependencies import get_db
 from app.models.maintenance import MaintenanceLog
 from app.models.vehicle import Vehicle, VehicleStatus
-from app.schemas.maintenance import MaintenanceLogCreate, MaintenanceLogResponse
+from app.schemas.maintenance import MaintenanceLogCreate, MaintenanceLogResponse, MaintenanceLogUpdate
 
 router = APIRouter(prefix="/maintenance", tags=["Maintenance"])
 
@@ -36,3 +36,28 @@ def get_maintenance_record(maintenance_id: UUID, db: Session = Depends(get_db)):
     if not record:
         raise HTTPException(status_code=404, detail="Maintenance record not found")
     return record
+
+@router.patch("/{maintenance_id}", response_model=MaintenanceLogResponse)
+def update_maintenance(maintenance_id: UUID, maintenance_update: MaintenanceLogUpdate, db: Session = Depends(get_db)):
+    db_maintenance = db.query(MaintenanceLog).filter(MaintenanceLog.id == maintenance_id).first()
+    if not db_maintenance:
+        raise HTTPException(status_code=404, detail="Maintenance record not found")
+    
+    # Update only provided fields
+    update_data = maintenance_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_maintenance, field, value)
+    
+    db.commit()
+    db.refresh(db_maintenance)
+    return db_maintenance
+
+@router.delete("/{maintenance_id}")
+def delete_maintenance(maintenance_id: UUID, db: Session = Depends(get_db)):
+    db_maintenance = db.query(MaintenanceLog).filter(MaintenanceLog.id == maintenance_id).first()
+    if not db_maintenance:
+        raise HTTPException(status_code=404, detail="Maintenance record not found")
+    
+    db.delete(db_maintenance)
+    db.commit()
+    return {"message": "Maintenance record deleted successfully"}

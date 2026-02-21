@@ -5,7 +5,7 @@ from app.core.dependencies import get_db
 from app.models.expense import Expense
 from app.models.trip import Trip
 from app.models.vehicle import Vehicle
-from app.schemas.expense import ExpenseCreate, ExpenseResponse
+from app.schemas.expense import ExpenseCreate, ExpenseResponse, ExpenseUpdate
 
 router = APIRouter(prefix="/expenses", tags=["Expenses"])
 
@@ -43,3 +43,28 @@ def get_expense(expense_id: UUID, db: Session = Depends(get_db)):
     if not expense:
         raise HTTPException(status_code=404, detail="Expense not found")
     return expense
+
+@router.patch("/{expense_id}", response_model=ExpenseResponse)
+def update_expense(expense_id: UUID, expense_update: ExpenseUpdate, db: Session = Depends(get_db)):
+    db_expense = db.query(Expense).filter(Expense.id == expense_id).first()
+    if not db_expense:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    
+    # Update only provided fields
+    update_data = expense_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_expense, field, value)
+    
+    db.commit()
+    db.refresh(db_expense)
+    return db_expense
+
+@router.delete("/{expense_id}")
+def delete_expense(expense_id: UUID, db: Session = Depends(get_db)):
+    db_expense = db.query(Expense).filter(Expense.id == expense_id).first()
+    if not db_expense:
+        raise HTTPException(status_code=404, detail="Expense not found")
+    
+    db.delete(db_expense)
+    db.commit()
+    return {"message": "Expense deleted successfully"}

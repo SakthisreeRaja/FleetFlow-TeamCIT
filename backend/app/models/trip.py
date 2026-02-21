@@ -7,6 +7,7 @@ from app.core.database import Base
 
 class TripStatus(str, enum.Enum):
     DISPATCHED = "DISPATCHED"
+    IN_PROGRESS = "IN_PROGRESS"
     COMPLETED = "COMPLETED"
     CANCELLED = "CANCELLED"
 

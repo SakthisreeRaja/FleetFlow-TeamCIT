@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { CurrencyDollarIcon } from "@heroicons/react/24/outline";
+import { UserIcon } from "@heroicons/react/24/outline";
 
 function createInitialFormData(initialData = null) {
   return {
-    trip_id: initialData?.trip_id || "",
-    vehicle_id: initialData?.vehicle_id || "",
-    expense_type: initialData?.expense_type || "",
-    amount: initialData?.amount || "",
-    expense_date: initialData?.expense_date ? initialData.expense_date.split("T")[0] : "",
+    full_name: initialData?.full_name || "",
+    phone: initialData?.phone || "",
+    license_number: initialData?.license_number || "",
+    license_category: initialData?.license_category || "",
+    license_expiry: initialData?.license_expiry ? initialData.license_expiry.split("T")[0] : "",
   };
 }
 
-function ExpenseForm({ onSubmit, onCancel, trips = [], vehicles = [], initialData = null }) {
+function DriverForm({ onSubmit, onCancel, initialData = null }) {
   const [formData, setFormData] = useState(() => createInitialFormData(initialData));
 
   const handleChange = (e) => {
@@ -25,11 +25,11 @@ function ExpenseForm({ onSubmit, onCancel, trips = [], vehicles = [], initialDat
     e.preventDefault();
     
     const submitData = {
-      trip_id: formData.trip_id,
-      vehicle_id: formData.vehicle_id,
-      expense_type: formData.expense_type,
-      amount: parseFloat(formData.amount),
-      expense_date: formData.expense_date,
+      full_name: formData.full_name,
+      phone: formData.phone,
+      license_number: formData.license_number,
+      license_category: formData.license_category,
+      license_expiry: formData.license_expiry,
     };
     
     onSubmit(submitData);
@@ -42,63 +42,23 @@ function ExpenseForm({ onSubmit, onCancel, trips = [], vehicles = [], initialDat
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-6">
-        <CurrencyDollarIcon className="w-5 h-5 text-[#8B1E3F]" />
+        <UserIcon className="w-5 h-5 text-[#8B1E3F]" />
         <h3 className="text-lg font-semibold text-gray-800">
-          {initialData ? "Edit Expense" : "New Expense"}
+          {initialData ? "Edit Driver" : "New Driver"}
         </h3>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Trip:
-          </label>
-          <select
-            name="trip_id"
-            value={formData.trip_id}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
-          >
-            <option value="">Select a trip</option>
-            {trips.map((trip) => (
-              <option key={trip.id} value={trip.id}>
-                {trip.trip_code} ({trip.origin} → {trip.destination})
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Vehicle:
-          </label>
-          <select
-            name="vehicle_id"
-            value={formData.vehicle_id}
-            onChange={handleChange}
-            required
-            className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
-          >
-            <option value="">Select a vehicle</option>
-            {vehicles.map((vehicle) => (
-              <option key={vehicle.id} value={vehicle.id}>
-                {vehicle.license_plate} - {vehicle.vehicle_type}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Expense Type:
+            Full Name:
           </label>
           <input
             type="text"
-            name="expense_type"
-            value={formData.expense_type}
+            name="full_name"
+            value={formData.full_name}
             onChange={handleChange}
-            placeholder="e.g., Toll, Parking, Repair"
+            placeholder="Enter driver's full name"
             required
             className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
           />
@@ -106,31 +66,69 @@ function ExpenseForm({ onSubmit, onCancel, trips = [], vehicles = [], initialDat
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Amount (₹):
+            Phone Number:
           </label>
           <input
-            type="number"
-            name="amount"
-            value={formData.amount}
+            type="tel"
+            name="phone"
+            value={formData.phone}
             onChange={handleChange}
-            placeholder="0.00"
+            placeholder="+1234567890"
             required
-            min="0"
-            step="0.01"
             className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
           />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Expense Date:
+            License Number:
+          </label>
+          <input
+            type="text"
+            name="license_number"
+            value={formData.license_number}
+            onChange={handleChange}
+            placeholder="DL-1234567890"
+            required
+            disabled={initialData !== null}
+            className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
+          />
+          {initialData && (
+            <p className="text-xs text-gray-500 mt-1">License number cannot be changed</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            License Category:
+          </label>
+          <select
+            name="license_category"
+            value={formData.license_category}
+            onChange={handleChange}
+            required
+            className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
+          >
+            <option value="">Select category</option>
+            <option value="LMV">LMV (Light Motor Vehicle)</option>
+            <option value="HMV">HMV (Heavy Motor Vehicle)</option>
+            <option value="MCWG">MCWG (Motorcycle with Gear)</option>
+            <option value="MCWOG">MCWOG (Motorcycle without Gear)</option>
+            <option value="TRANS">TRANS (Transport Vehicle)</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            License Expiry Date:
           </label>
           <input
             type="date"
-            name="expense_date"
-            value={formData.expense_date}
+            name="license_expiry"
+            value={formData.license_expiry}
             onChange={handleChange}
             required
+            min={new Date().toISOString().split('T')[0]}
             className="w-full px-4 py-2.5 bg-white text-gray-800 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all"
           />
         </div>
@@ -140,7 +138,7 @@ function ExpenseForm({ onSubmit, onCancel, trips = [], vehicles = [], initialDat
             type="submit"
             className="flex-1 px-4 py-2.5 bg-[#8B1E3F] text-white rounded-lg hover:bg-[#751932] transition-colors font-medium text-sm"
           >
-            {initialData ? "Update Expense" : "Add Expense"}
+            {initialData ? "Update Driver" : "Add Driver"}
           </button>
           <button
             type="button"
@@ -155,4 +153,4 @@ function ExpenseForm({ onSubmit, onCancel, trips = [], vehicles = [], initialDat
   );
 }
 
-export default ExpenseForm;
+export default DriverForm;

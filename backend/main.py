@@ -1,19 +1,26 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# IMPORTANT: import all models BEFORE create_all
-from app.models import role, user, vehicle, driver, trip, maintenance, fuel, expense
-
-# Import database components
 from app.core.init_db import init_database
-
-# Import API routers
-from app.api import auth, users, roles, drivers, vehicles, trips, expenses, maintenance, fuel as fuel_api, dashboard, analytics, reports
+from app.api import (
+    analytics,
+    auth,
+    dashboard,
+    drivers,
+    expenses,
+    fuel as fuel_api,
+    maintenance,
+    reports,
+    roles,
+    trips,
+    users,
+    vehicles,
+)
 
 # Initialize database (creates tables and seeds default data)
 init_database()
 
-app = FastAPI(title="FleetFlow API 🚛")
+app = FastAPI(title="FleetFlow API")
 
 # CORS middleware
 app.add_middleware(
@@ -38,9 +45,11 @@ app.include_router(dashboard.router)
 app.include_router(analytics.router)
 app.include_router(reports.router)
 
+
 @app.get("/")
 def root():
-    return {"message": "FleetFlow running successfully 🚀", "version": "1.0.0"}
+    return {"message": "FleetFlow running successfully", "version": "1.0.0"}
+
 
 @app.get("/health")
 def health_check():

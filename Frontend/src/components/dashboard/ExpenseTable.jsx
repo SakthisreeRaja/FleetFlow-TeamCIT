@@ -1,26 +1,43 @@
 import { useState } from "react";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
 
-function ExpenseTable({ expenses }) {
+function ExpenseTable({ expenses, trips = [], vehicles = [], onEditExpense, onDeleteExpense }) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case "done":
-      case "completed":
-        return "text-green-600 bg-green-50";
-      case "pending":
-        return "text-yellow-600 bg-yellow-50";
-      case "in progress":
-        return "text-blue-600 bg-blue-50";
-      default:
-        return "text-gray-600 bg-gray-50";
-    }
+  const getTripLabel = (tripId) => {
+    const trip = trips.find(t => t.id === tripId);
+    return trip ? `${trip.trip_code} (${trip.origin} → ${trip.destination})` : tripId;
   };
 
-  const filteredExpenses = expenses.filter((expense) =>
-    expense.driver.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    expense.tripId.toString().includes(searchTerm)
-  );
+  const getVehicleLabel = (vehicleId) => {
+    const vehicle = vehicles.find(v => v.id === vehicleId);
+    return vehicle ? `${vehicle.license_plate} - ${vehicle.vehicle_type}` : vehicleId;
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+  };
+
+  const formatCurrency = (amount) => {
+    if (typeof amount === 'number') {
+      return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+    return amount || "N/A";
+  };
+
+  const filteredExpenses = expenses.filter((expense) => {
+    const tripLabel = getTripLabel(expense.trip_id).toLowerCase();
+    const vehicleLabel = getVehicleLabel(expense.vehicle_id).toLowerCase();
+    const expenseType = (expense.expense_type || "").toLowerCase();
+    const search = searchTerm.toLowerCase();
+    return tripLabel.includes(search) || vehicleLabel.includes(search) || expenseType.includes(search);
+  });
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
@@ -53,53 +70,74 @@ function ExpenseTable({ expenses }) {
           <thead className="bg-[#F4F6F9]">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Trip ID
+                Trip
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Driver
+                Vehicle
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Distance
+                Expense Type
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Fuel Expense
+                Amount
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Misc. Expen
+                Date
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Status
+                Actions
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredExpenses.map((expense) => (
-              <tr
-                key={expense.tripId}
-                className="hover:bg-[#FDF2F5] transition-colors"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
-                  {expense.tripId}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {expense.driver}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {expense.distance}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {expense.fuelExpense}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {expense.miscExpense}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(expense.status)}`}>
-                    {expense.status}
-                  </span>
+            {filteredExpenses.length === 0 ? (
+              <tr>
+                <td colSpan="6" className="px-6 py-8 text-center text-sm text-gray-500">
+                  No expenses found.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredExpenses.map((expense) => (
+                <tr
+                  key={expense.id}
+                  className="hover:bg-[#FDF2F5] transition-colors"
+                >
+                  <td className="px-6 py-4 text-sm text-gray-800 font-medium max-w-xs truncate">
+                    {getTripLabel(expense.trip_id)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {getVehicleLabel(expense.vehicle_id)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {expense.expense_type}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
+                    {formatCurrency(expense.amount)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {formatDate(expense.expense_date)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => onEditExpense(expense)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => onDeleteExpense(expense.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

@@ -5,7 +5,7 @@ from app.core.dependencies import get_db
 from app.models.fuel import FuelLog
 from app.models.trip import Trip
 from app.models.vehicle import Vehicle
-from app.schemas.fuel import FuelLogCreate, FuelLogResponse
+from app.schemas.fuel import FuelLogCreate, FuelLogResponse, FuelLogUpdate
 
 router = APIRouter(prefix="/fuel", tags=["Fuel"])
 
@@ -42,3 +42,28 @@ def get_fuel_log(fuel_id: UUID, db: Session = Depends(get_db)):
     if not log:
         raise HTTPException(status_code=404, detail="Fuel log not found")
     return log
+
+@router.patch("/{fuel_id}", response_model=FuelLogResponse)
+def update_fuel_log(fuel_id: UUID, fuel_update: FuelLogUpdate, db: Session = Depends(get_db)):
+    db_fuel = db.query(FuelLog).filter(FuelLog.id == fuel_id).first()
+    if not db_fuel:
+        raise HTTPException(status_code=404, detail="Fuel log not found")
+    
+    # Update only provided fields
+    update_data = fuel_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(db_fuel, field, value)
+    
+    db.commit()
+    db.refresh(db_fuel)
+    return db_fuel
+
+@router.delete("/{fuel_id}")
+def delete_fuel_log(fuel_id: UUID, db: Session = Depends(get_db)):
+    db_fuel = db.query(FuelLog).filter(FuelLog.id == fuel_id).first()
+    if not db_fuel:
+        raise HTTPException(status_code=404, detail="Fuel log not found")
+    
+    db.delete(db_fuel)
+    db.commit()
+    return {"message": "Fuel log deleted successfully"}

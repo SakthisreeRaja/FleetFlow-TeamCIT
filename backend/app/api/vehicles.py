@@ -52,3 +52,27 @@ def update_vehicle(vehicle_id: UUID, vehicle_update: VehicleUpdate, db: Session 
     db.commit()
     db.refresh(vehicle)
     return vehicle
+
+@router.delete("/{vehicle_id}")
+def delete_vehicle(vehicle_id: UUID, db: Session = Depends(get_db)):
+    from app.models.trip import Trip, TripStatus
+    
+    vehicle = db.query(Vehicle).filter(Vehicle.id == vehicle_id).first()
+    if not vehicle:
+        raise HTTPException(status_code=404, detail="Vehicle not found")
+    
+    # Check if vehicle has active trips
+    active_trips = db.query(Trip).filter(
+        Trip.vehicle_id == vehicle_id,
+        Trip.status.in_([TripStatus.DISPATCHED, TripStatus.IN_PROGRESS])
+    ).count()
+    
+    if active_trips > 0:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cannot delete vehicle with {active_trips} active trip(s). Complete trips first."
+        )
+    
+    db.delete(vehicle)
+    db.commit()
+    return {"message": "Vehicle deleted successfully"}

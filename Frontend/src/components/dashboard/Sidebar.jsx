@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -9,30 +9,30 @@ import {
   CurrencyDollarIcon,
   ChartBarIcon,
   PresentationChartLineIcon,
+  UserGroupIcon,
 } from "@heroicons/react/24/outline";
 
-function Sidebar({ isOpen, setIsOpen }) {
+const ALL_MENU_ITEMS = [
+  { name: "Dashboard", icon: HomeIcon, path: "/dashboard", roles: ["Manager"] },
+  { name: "Vehicle Registry", icon: TruckIcon, path: "/dashboard/vehicles", roles: ["Manager", "Dispatcher"] },
+  { name: "Driver Management", icon: UserGroupIcon, path: "/dashboard/drivers", roles: ["Manager", "Dispatcher"] },
+  { name: "Trip Dispatcher", icon: ClipboardDocumentListIcon, path: "/dashboard/trips", roles: ["Manager", "Dispatcher"] },
+  { name: "Maintenance", icon: WrenchScrewdriverIcon, path: "/dashboard/maintenance", roles: ["Manager"] },
+  { name: "Trip Response", icon: CurrencyDollarIcon, path: "/dashboard/hiring", roles: ["Manager"] },
+  { name: "Performance", icon: ChartBarIcon, path: "/dashboard/performance", roles: ["Manager", "Safety Officer"] },
+  { name: "Analytics", icon: PresentationChartLineIcon, path: "/dashboard/analytics", roles: ["Manager", "Financial Analyst"] },
+];
+
+function Sidebar({ isOpen }) {
   const location = useLocation();
-  const [activeMenu, setActiveMenu] = useState("Dashboard");
   const { user } = useAuth();
   
   // Get user role from auth context
   const userRole = user?.role || "Manager";
 
-  // All available menu items with role access
-  const allMenuItems = [
-    { name: "Dashboard", icon: HomeIcon, path: "/dashboard", roles: ["Manager"] },
-    { name: "Vehicle Registry", icon: TruckIcon, path: "/dashboard/vehicles", roles: ["Manager"] },
-    { name: "Trip Dispatcher", icon: ClipboardDocumentListIcon, path: "/dashboard/trips", roles: ["Manager", "Dispatcher"] },
-    { name: "Maintenance", icon: WrenchScrewdriverIcon, path: "/dashboard/maintenance", roles: ["Manager"] },
-    { name: "Trip Response", icon: CurrencyDollarIcon, path: "/dashboard/hiring", roles: ["Manager"] },
-    { name: "Performance", icon: ChartBarIcon, path: "/dashboard/performance", roles: ["Manager", "Dispatcher", "Safety Officer"] },
-    { name: "Analytics", icon: PresentationChartLineIcon, path: "/dashboard/analytics", roles: ["Manager", "Financial Analyst"] },
-  ];
-
   // Filter menu items based on user role
   const menuItems = useMemo(() => {
-    return allMenuItems.filter(item => item.roles.includes(userRole));
+    return ALL_MENU_ITEMS.filter((item) => item.roles.includes(userRole));
   }, [userRole]);
 
   return (
@@ -66,7 +66,6 @@ function Sidebar({ isOpen, setIsOpen }) {
               <li key={item.name}>
                 <Link
                   to={item.path}
-                  onClick={() => setActiveMenu(item.name)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group
                     ${
                       isActive

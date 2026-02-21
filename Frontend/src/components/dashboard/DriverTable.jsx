@@ -1,11 +1,48 @@
 import { useState } from "react";
+import { PencilIcon, TrashIcon, TruckIcon } from "@heroicons/react/24/outline";
 
-function DriverTable({ drivers }) {
+function DriverTable({ drivers, onEditDriver, onDeleteDriver, onAssignVehicle }) {
   const [searchTerm, setSearchTerm] = useState("");
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric"
+    });
+  };
+
+  const formatPercentage = (value) => {
+    if (typeof value === 'number') {
+      return `${value.toFixed(1)}%`;
+    }
+    return "0%";
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "ON_DUTY":
+        return "text-green-600 bg-green-50";
+      case "ON_TRIP":
+        return "text-blue-600 bg-blue-50";
+      case "OFF_DUTY":
+        return "text-gray-600 bg-gray-50";
+      case "SUSPENDED":
+        return "text-red-600 bg-red-50";
+      default:
+        return "text-gray-600 bg-gray-50";
+    }
+  };
+
+  const formatStatus = (status) => {
+    return status ? status.replace(/_/g, ' ') : 'N/A';
+  };
+
   const filteredDrivers = drivers.filter((driver) =>
-    driver.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    driver.license.toLowerCase().includes(searchTerm.toLowerCase())
+    driver.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    driver.license_number.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -48,6 +85,9 @@ function DriverTable({ drivers }) {
                 Expiry
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Completion Rate
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
@@ -56,50 +96,103 @@ function DriverTable({ drivers }) {
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Complaints
               </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {filteredDrivers.map((driver, index) => (
-              <tr
-                key={index}
-                className="hover:bg-[#FDF2F5] transition-colors"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
-                  {driver.name}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {driver.license}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {driver.expiry}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-gray-200 rounded-full h-2 max-w-[60px]">
-                      <div
-                        className="bg-green-500 h-2 rounded-full"
-                        style={{ width: driver.completionRate }}
-                      ></div>
-                    </div>
-                    <span className="text-xs font-medium">{driver.completionRate}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 bg-gray-200 rounded-full h-2 max-w-[60px]">
-                      <div
-                        className="bg-[#8B1E3F] h-2 rounded-full"
-                        style={{ width: driver.safetyScore }}
-                      ></div>
-                    </div>
-                    <span className="text-xs font-medium">{driver.safetyScore}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {driver.complaints}
+            {filteredDrivers.length === 0 ? (
+              <tr>
+                <td colSpan="8" className="px-6 py-8 text-center text-sm text-gray-500">
+                  No drivers found.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredDrivers.map((driver) => (
+                <tr
+                  key={driver.id}
+                  className="hover:bg-[#FDF2F5] transition-colors"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
+                    <div>
+                      <div>{driver.full_name}</div>
+                      <div className="text-xs text-gray-500">{driver.phone}</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <div>
+                      <div>{driver.license_number}</div>
+                      <div className="text-xs text-gray-500">{driver.license_category}</div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {formatDate(driver.license_expiry)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(driver.status)}`}>
+                      {formatStatus(driver.status)}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 bg-gray-200 rounded-full h-2 max-w-15">
+                        <div
+                          className="bg-green-500 h-2 rounded-full"
+                          style={{ width: `${driver.completion_rate}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-xs font-medium">{formatPercentage(driver.completion_rate)}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 bg-gray-200 rounded-full h-2 max-w-15">
+                        <div
+                          className="bg-[#8B1E3F] h-2 rounded-full"
+                          style={{ width: `${driver.safety_score}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-xs font-medium">{formatPercentage(driver.safety_score)}</span>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded ${driver.complaints > 5 ? 'bg-red-100 text-red-700' : driver.complaints > 2 ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
+                      {driver.complaints}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <div className="flex items-center gap-2">
+                      {onAssignVehicle && (
+                        <button
+                          onClick={() => onAssignVehicle(driver)}
+                          className="p-2 text-[#8B1E3F] hover:bg-[#FDF2F5] rounded-lg transition-colors"
+                          title="Assign Vehicle"
+                          disabled={driver.status === "SUSPENDED"}
+                        >
+                          <TruckIcon className="w-4 h-4" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => onEditDriver(driver)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => onDeleteDriver(driver.id)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete"
+                        disabled={driver.status === "ON_TRIP"}
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

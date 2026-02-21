@@ -4,6 +4,7 @@ import Register from "./pages/auth/Register";
 import DashboardLayout from "./layouts/DashboardLayout";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Vehicles from "./pages/dashboard/Vehicles";
+import Drivers from "./pages/dashboard/Drivers";
 import Trips from "./pages/dashboard/Trips";
 import Maintenance from "./pages/dashboard/Maintenance";
 import Hiring from "./pages/dashboard/Hiring";
@@ -33,6 +34,14 @@ function App() {
         element={
           <ProtectedRoute>
             <DashboardLayout><Vehicles /></DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/drivers"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout><Drivers /></DashboardLayout>
           </ProtectedRoute>
         }
       />

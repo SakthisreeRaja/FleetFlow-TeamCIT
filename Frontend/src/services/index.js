@@ -79,7 +79,7 @@ export const vehiclesService = {
 
   // Update vehicle
   updateVehicle: async (id, vehicleData) => {
-    const response = await api.put(`/vehicles/${id}`, vehicleData);
+    const response = await api.patch(`/vehicles/${id}`, vehicleData);
     return response.data;
   },
 
@@ -111,7 +111,7 @@ export const driversService = {
 
   // Update driver
   updateDriver: async (id, driverData) => {
-    const response = await api.put(`/drivers/${id}`, driverData);
+    const response = await api.patch(`/drivers/${id}`, driverData);
     return response.data;
   },
 
@@ -143,13 +143,19 @@ export const tripsService = {
 
   // Update trip
   updateTrip: async (id, tripData) => {
-    const response = await api.put(`/trips/${id}`, tripData);
+    const response = await api.patch(`/trips/${id}`, tripData);
     return response.data;
   },
 
   // Delete trip
   deleteTrip: async (id) => {
     const response = await api.delete(`/trips/${id}`);
+    return response.data;
+  },
+
+  // Complete trip
+  completeTrip: async (id, endOdometer) => {
+    const response = await api.patch(`/trips/${id}/complete`, { end_odometer: endOdometer });
     return response.data;
   },
 };
@@ -175,7 +181,7 @@ export const maintenanceService = {
 
   // Update maintenance record
   updateMaintenance: async (id, maintenanceData) => {
-    const response = await api.put(`/maintenance/${id}`, maintenanceData);
+    const response = await api.patch(`/maintenance/${id}`, maintenanceData);
     return response.data;
   },
 
@@ -207,7 +213,7 @@ export const expensesService = {
 
   // Update expense
   updateExpense: async (id, expenseData) => {
-    const response = await api.put(`/expenses/${id}`, expenseData);
+    const response = await api.patch(`/expenses/${id}`, expenseData);
     return response.data;
   },
 
@@ -220,31 +226,31 @@ export const expensesService = {
 
 export const fuelService = {
   // Get all fuel records
-  getFuelRecords: async () => {
+  getFuelLogs: async () => {
     const response = await api.get('/fuel/');
     return response.data;
   },
 
   // Get fuel record by ID
-  getFuelRecord: async (id) => {
+  getFuelLog: async (id) => {
     const response = await api.get(`/fuel/${id}`);
     return response.data;
   },
 
   // Create fuel record
-  createFuelRecord: async (fuelData) => {
+  createFuelLog: async (fuelData) => {
     const response = await api.post('/fuel/', fuelData);
     return response.data;
   },
 
   // Update fuel record
-  updateFuelRecord: async (id, fuelData) => {
-    const response = await api.put(`/fuel/${id}`, fuelData);
+  updateFuelLog: async (id, fuelData) => {
+    const response = await api.patch(`/fuel/${id}`, fuelData);
     return response.data;
   },
 
   // Delete fuel record
-  deleteFuelRecord: async (id) => {
+  deleteFuelLog: async (id) => {
     const response = await api.delete(`/fuel/${id}`);
     return response.data;
   },
@@ -261,7 +267,33 @@ export const dashboardService = {
 export const analyticsService = {
   // Get analytics data
   getAnalytics: async () => {
-    const response = await api.get('/analytics/');
+    const response = await api.get('/analytics/fleet');
+    return response.data;
+  },
+
+  // Get fuel efficiency data
+  getFuelEfficiency: async () => {
+    const response = await api.get('/analytics/fuel-efficiency');
+    return response.data;
+  },
+
+  // Get vehicle costs
+  getVehicleCosts: async () => {
+    const response = await api.get('/analytics/vehicle-costs');
+    return response.data;
+  },
+};
+
+export const reportsService = {
+  // Get monthly report
+  getMonthlyReport: async () => {
+    const response = await api.get('/reports/monthly');
+    return response.data;
+  },
+
+  // Get fleet performance
+  getFleetPerformance: async () => {
+    const response = await api.get('/reports/fleet-performance');
     return response.data;
   },
 };

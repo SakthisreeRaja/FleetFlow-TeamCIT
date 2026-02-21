@@ -1,19 +1,22 @@
-import { useState } from "react";
-
 function FleetTable({ trips }) {
-  const [sortBy, setSortBy] = useState("all");
-
   const getStatusColor = (status) => {
-    switch (status.toLowerCase()) {
-      case "on trip":
-        return "text-[#8B1E3F] bg-[#FDF2F5]";
-      case "ready":
-        return "text-green-600 bg-green-50";
-      case "maintenance":
-        return "text-yellow-600 bg-yellow-50";
-      default:
-        return "text-gray-600 bg-gray-50";
+    const statusLower = status?.toLowerCase() || "";
+    if (statusLower.includes("dispatch") || statusLower.includes("progress") || statusLower.includes("on")) {
+      return "text-[#8B1E3F] bg-[#FDF2F5]";
+    } else if (statusLower.includes("complete") || statusLower.includes("ready")) {
+      return "text-green-600 bg-green-50";
+    } else if (statusLower.includes("maintenance") || statusLower.includes("shop")) {
+      return "text-yellow-600 bg-yellow-50";
     }
+    return "text-gray-600 bg-gray-50";
+  };
+
+  const formatStatus = (status) => {
+    if (!status) return "Unknown";
+    return status.replace(/_/g, " ").toLowerCase()
+      .split(" ")
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   return (
@@ -32,13 +35,13 @@ function FleetTable({ trips }) {
           <thead className="bg-[#F4F6F9]">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Trip
+                Trip Code
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Vehicle
+                Origin
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
-                Driver
+                Destination
               </th>
               <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
                 Status
@@ -46,27 +49,35 @@ function FleetTable({ trips }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {trips.map((trip, index) => (
-              <tr
-                key={index}
-                className="hover:bg-[#FDF2F5] transition-colors"
-              >
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
-                  {trip.id}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {trip.vehicle}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {trip.driver}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(trip.status)}`}>
-                    {trip.status}
-                  </span>
+            {trips.length === 0 ? (
+              <tr>
+                <td colSpan="4" className="px-6 py-8 text-center text-sm text-gray-500">
+                  No trips found
                 </td>
               </tr>
-            ))}
+            ) : (
+              trips.map((trip) => (
+                <tr
+                  key={trip.id}
+                  className="hover:bg-[#FDF2F5] transition-colors"
+                >
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">
+                    {trip.trip_code}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {trip.origin || "N/A"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {trip.destination || "N/A"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${getStatusColor(trip.status)}`}>
+                      {formatStatus(trip.status)}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
