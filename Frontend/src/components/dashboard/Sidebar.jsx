@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   HomeIcon,
@@ -13,16 +13,25 @@ import {
 function Sidebar({ isOpen, setIsOpen }) {
   const location = useLocation();
   const [activeMenu, setActiveMenu] = useState("Dashboard");
+  
+  // Get user role from localStorage
+  const userRole = localStorage.getItem("userRole") || "Manager";
 
-  const menuItems = [
-    { name: "Dashboard", icon: HomeIcon, path: "/dashboard" },
-    { name: "Vehicle Registry", icon: TruckIcon, path: "/dashboard/vehicles" },
-    { name: "Trip Dispatcher", icon: ClipboardDocumentListIcon, path: "/dashboard/trips" },
-    { name: "Maintenance", icon: WrenchScrewdriverIcon, path: "/dashboard/maintenance" },
-    { name: "Trip Response", icon: CurrencyDollarIcon, path: "/dashboard/hiring" },
-    { name: "Performance", icon: ChartBarIcon, path: "/dashboard/performance" },
-    { name: "Analytics", icon: PresentationChartLineIcon, path: "/dashboard/analytics" },
+  // All available menu items with role access
+  const allMenuItems = [
+    { name: "Dashboard", icon: HomeIcon, path: "/dashboard", roles: ["Manager"] },
+    { name: "Vehicle Registry", icon: TruckIcon, path: "/dashboard/vehicles", roles: ["Manager"] },
+    { name: "Trip Dispatcher", icon: ClipboardDocumentListIcon, path: "/dashboard/trips", roles: ["Manager", "Dispatcher"] },
+    { name: "Maintenance", icon: WrenchScrewdriverIcon, path: "/dashboard/maintenance", roles: ["Manager"] },
+    { name: "Trip Response", icon: CurrencyDollarIcon, path: "/dashboard/hiring", roles: ["Manager"] },
+    { name: "Performance", icon: ChartBarIcon, path: "/dashboard/performance", roles: ["Manager", "Dispatcher", "Safety Officer"] },
+    { name: "Analytics", icon: PresentationChartLineIcon, path: "/dashboard/analytics", roles: ["Manager", "Financial Analyst"] },
   ];
+
+  // Filter menu items based on user role
+  const menuItems = useMemo(() => {
+    return allMenuItems.filter(item => item.roles.includes(userRole));
+  }, [userRole]);
 
   return (
     <aside
