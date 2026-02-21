@@ -44,21 +44,34 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col lg:flex-row relative">
       {/* Left Side - Image */}
-      <div className="lg:w-1/2 h-64 lg:h-screen relative overflow-hidden group">
+      <div className="lg:w-1/2 h-64 lg:h-screen relative overflow-hidden">
         <img
           src={bgImage}
           alt="Fleet Operations"
-          className="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-linear-to-r from-[#8B1E3F]/20 to-transparent"></div>
+        {/* Minimal tint on left, concentrated fade on right edge only */}
+        <div className="absolute inset-0 bg-[#8B1E3F]/5"></div>
+        <div className="absolute inset-y-0 right-0 w-12 bg-linear-to-r from-transparent to-[#FDF2F5] hidden lg:block"></div>
       </div>
 
       {/* Right Side - Form */}
-      <div className="lg:w-1/2 flex items-center justify-center p-6 lg:p-12 bg-gray-50 animate-fadeIn">
+      <div className="lg:w-1/2 flex items-center justify-center p-6 lg:p-12 bg-[#FDF2F5] animate-fadeIn relative">
         <div className="w-full max-w-md animate-slideInRight">
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 lg:p-10 transition-all duration-300 hover:shadow-3xl">
+
+            {/* Company Branding */}
+            <div className="text-center mb-8 animate-fadeInScale">
+              <h1 className="text-5xl font-bold mb-3 tracking-tight bg-linear-to-r from-[#8B1E3F] via-[#A52342] to-[#8B1E3F] bg-clip-text text-transparent animate-gradientFlow">
+                FleetFlow
+              </h1>
+              <div className="h-1 w-20 bg-linear-to-r from-transparent via-[#8B1E3F] to-transparent mx-auto rounded-full mb-3"></div>
+              <p className="text-xs text-gray-500 uppercase tracking-widest font-medium">
+                Fleet Management System
+              </p>
+            </div>
 
             {/* Header with Role Selector */}
             <div className="flex justify-between items-start mb-8">
