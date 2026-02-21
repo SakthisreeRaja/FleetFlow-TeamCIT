@@ -1,46 +1,58 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import bgImage from "../../assets/auth-bg.png"; // adjust if inside images folder
+import { useAuth } from "../../context/AuthContext";
+import bgImage from "../../assets/auth-bg.png";
 
 function Login() {
   const navigate = useNavigate();
-  const [selectedRole, setSelectedRole] = useState(null);
-  const [showRoles, setShowRoles] = useState(false);
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
-  const roles = [
-    "Manager",
-    "Dispatcher",
-    "Safety Officer",
-    "Financial Analyst",
-  ];
-
-  const handleRoleSelect = (role) => {
-    setSelectedRole(role);
-    setShowRoles(false);
-  };
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [showNoAccountModal, setShowNoAccountModal] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+    setError(""); // Clear error on input change
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (selectedRole && formData.email && formData.password) {
-      // Store user info in localStorage
-      localStorage.setItem("userName", formData.email.split("@")[0]);
-      localStorage.setItem("userRole", selectedRole);
-      localStorage.setItem("isAuthenticated", "true");
-      
-      // Navigate to dashboard
+    setLoading(true);
+    setError("");
+
+    try {
+      await login(formData.email, formData.password);
       navigate("/dashboard");
+    } catch (err) {
+      const errorMessage = err.response?.data?.detail || "Login failed. Please check your credentials.";
+      const statusCode = err.response?.status;
+      
+      // Check if error is "No account found" (404 status)
+      if (statusCode === 404 || errorMessage.toLowerCase().includes("no account found")) {
+        setShowNoAccountModal(true);
+      } else {
+        setError(errorMessage);
+      }
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleGoToRegister = () => {
+    setShowNoAccountModal(false);
+    navigate("/register");
+  };
+
+  const handleCloseModal = () => {
+    setShowNoAccountModal(false);
+    setError("");
   };
 
   return (
@@ -79,49 +91,22 @@ function Login() {
               </p>
             </div>
 
-            {/* Header with Role Selector */}
-            <div className="flex justify-between items-start mb-8">
-              <div className="animate-slideInDown">
-                <h2 className="text-3xl font-bold text-[#8B1E3F] mb-2">
-                  Welcome Back
-                </h2>
-                <p className="text-sm text-gray-600">
-                  Secure access to fleet operations
-                </p>
-              </div>
-
-              {/* Role Selector - Top Right */}
-              <div className="relative animate-slideInDown animation-delay-100">
-                <button
-                  type="button"
-                  onClick={() => setShowRoles(!showRoles)}
-                  className={`px-4 py-2 rounded-lg text-sm border transition-all duration-300 whitespace-nowrap
-                    ${
-                      selectedRole
-                        ? "bg-[#8B1E3F] text-white border-[#8B1E3F] shadow-md"
-                        : "bg-[#FDF2F5] text-[#8B1E3F] border-[#8B1E3F] hover:bg-[#8B1E3F] hover:text-white"
-                    }`}
-                >
-                  {selectedRole ? selectedRole : "Role"}
-                </button>
-
-                {showRoles && (
-                  <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-xl z-10 overflow-hidden animate-slideInDown">
-                    {roles.map((role, index) => (
-                      <button
-                        key={role}
-                        type="button"
-                        onClick={() => handleRoleSelect(role)}
-                        className="w-full text-left px-4 py-3 hover:bg-[#FDF2F5] hover:text-[#8B1E3F] text-gray-700 transition-all duration-200 border-b border-gray-100 last:border-b-0"
-                        style={{ animationDelay: `${index * 50}ms` }}
-                      >
-                        {role}
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+            {/* Header */}
+            <div className="mb-8 animate-slideInDown">
+              <h2 className="text-3xl font-bold text-[#8B1E3F] mb-2">
+                Welcome Back
+              </h2>
+              <p className="text-sm text-gray-600">
+                Secure access to fleet operations
+              </p>
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg animate-shake">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
 
             {/* Inputs */}
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -157,17 +142,25 @@ function Login() {
 
               <button
                 type="submit"
-                disabled={!selectedRole}
+                disabled={loading}
                 className={`w-full py-3 rounded-lg text-white font-medium transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp animation-delay-400
                   ${
-                    selectedRole
-                      ? "bg-[#8B1E3F] hover:bg-[#751932] shadow-lg hover:shadow-xl"
-                      : "bg-gray-400 cursor-not-allowed"
+                    loading
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#8B1E3F] hover:bg-[#751932] shadow-lg hover:shadow-xl"
                   }`}
               >
-                {selectedRole
-                  ? `Login as ${selectedRole}`
-                  : "Select Role to Continue"}
+                {loading ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Logging in...
+                  </span>
+                ) : (
+                  "Login"
+                )}
               </button>
 
               <p className="text-sm text-gray-600 text-center mt-6 animate-fadeIn animation-delay-500">
@@ -185,6 +178,59 @@ function Login() {
         </div>
         </div>
       </div>
+
+      {/* No Account Found Modal */}
+      {showNoAccountModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 animate-fadeIn">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 animate-slideInDown">
+            {/* Icon */}
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <svg 
+                  className="w-8 h-8 text-red-600" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  viewBox="0 0 24 24"
+                >
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" 
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3 className="text-2xl font-bold text-gray-800 text-center mb-3">
+              No Account Found
+            </h3>
+
+            {/* Message */}
+            <p className="text-gray-600 text-center mb-6">
+              We couldn't find an account with email <span className="font-semibold text-[#8B1E3F]">{formData.email}</span>. 
+              Would you like to create a new account?
+            </p>
+
+            {/* Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={handleCloseModal}
+                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-all duration-200 font-medium"
+              >
+                Try Again
+              </button>
+              <button
+                onClick={handleGoToRegister}
+                className="flex-1 px-4 py-3 bg-[#8B1E3F] text-white rounded-lg hover:bg-[#751932] transition-all duration-200 font-medium shadow-md hover:shadow-lg"
+              >
+                Create Account
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

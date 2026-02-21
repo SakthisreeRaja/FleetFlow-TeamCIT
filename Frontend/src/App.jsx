@@ -9,6 +9,7 @@ import Maintenance from "./pages/dashboard/Maintenance";
 import Hiring from "./pages/dashboard/Hiring";
 import Performance from "./pages/dashboard/Performance";
 import Analytics from "./pages/dashboard/Analytics";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -18,14 +19,63 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       
-      {/* Dashboard Routes */}
-      <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
-      <Route path="/dashboard/vehicles" element={<DashboardLayout><Vehicles /></DashboardLayout>} />
-      <Route path="/dashboard/trips" element={<DashboardLayout><Trips /></DashboardLayout>} />
-      <Route path="/dashboard/maintenance" element={<DashboardLayout><Maintenance /></DashboardLayout>} />
-      <Route path="/dashboard/hiring" element={<DashboardLayout><Hiring /></DashboardLayout>} />
-      <Route path="/dashboard/performance" element={<DashboardLayout><Performance /></DashboardLayout>} />
-      <Route path="/dashboard/analytics" element={<DashboardLayout><Analytics /></DashboardLayout>} />
+      {/* Protected Dashboard Routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout><Dashboard /></DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/vehicles"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout><Vehicles /></DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/trips"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout><Trips /></DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/maintenance"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout><Maintenance /></DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/hiring"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout><Hiring /></DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/performance"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout><Performance /></DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/analytics"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout><Analytics /></DashboardLayout>
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

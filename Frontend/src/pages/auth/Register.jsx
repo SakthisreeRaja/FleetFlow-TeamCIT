@@ -1,23 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import bgImage from "../../assets/auth-bg.png"; // adjust if needed
+import { useAuth } from "../../context/AuthContext";
+import { rolesService } from "../../services";
+import bgImage from "../../assets/auth-bg.png";
 
 function Register() {
   const navigate = useNavigate();
+  const { register } = useAuth();
   const [selectedRole, setSelectedRole] = useState(null);
   const [showRoles, setShowRoles] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
   });
 
-  const roles = [
-    "Manager",
-    "Dispatcher",
-    "Safety Officer",
-    "Financial Analyst",
-  ];
+  // Fetch roles from backend
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const data = await rolesService.getRoles();
+        setRoles(data);
+      } catch (err) {
+        setError("Failed to load roles. Please refresh the page.");
+      }
+    };
+    fetchRoles();
+  }, []);
 
   const handleRoleSelect = (role) => {
     setSelectedRole(role);
@@ -29,18 +41,35 @@ function Register() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    setError(""); // Clear error on input change
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (selectedRole && formData.fullName && formData.email && formData.password) {
-      // Store user info in localStorage
-      localStorage.setItem("userName", formData.fullName);
-      localStorage.setItem("userRole", selectedRole);
-      localStorage.setItem("isAuthenticated", "true");
-      
-      // Navigate to dashboard
+    
+    if (!selectedRole) {
+      setError("Please select a role");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      await register(
+        formData.fullName,
+        formData.email,
+        formData.password,
+        selectedRole.id
+      );
       navigate("/dashboard");
+    } catch (err) {
+      setError(
+        err.response?.data?.detail || 
+        "Registration failed. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -103,26 +132,33 @@ function Register() {
                         : "bg-[#FDF2F5] text-[#8B1E3F] border-[#8B1E3F] hover:bg-[#8B1E3F] hover:text-white"
                     }`}
                 >
-                  {selectedRole ? selectedRole : "Role"}
+                  {selectedRole ? selectedRole.name : "Role"}
                 </button>
 
                 {showRoles && (
                   <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-lg shadow-xl z-10 overflow-hidden animate-slideInDown">
                     {roles.map((role, index) => (
                       <button
-                        key={role}
+                        key={role.id}
                         type="button"
                         onClick={() => handleRoleSelect(role)}
                         className="w-full text-left px-4 py-3 hover:bg-[#FDF2F5] hover:text-[#8B1E3F] text-gray-700 transition-all duration-200 border-b border-gray-100 last:border-b-0"
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
-                        {role}
+                        {role.name}
                       </button>
                     ))}
                   </div>
                 )}
               </div>
             </div>
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg animate-shake">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
 
             {/* Inputs */}
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -173,17 +209,27 @@ function Register() {
 
               <button
                 type="submit"
-                disabled={!selectedRole}
+                disabled={loading || !selectedRole}
                 className={`w-full py-3 rounded-lg text-white font-medium transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp animation-delay-500
                   ${
-                    selectedRole
-                      ? "bg-[#8B1E3F] hover:bg-[#751932] shadow-lg hover:shadow-xl"
-                      : "bg-gray-400 cursor-not-allowed"
+                    loading || !selectedRole
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#8B1E3F] hover:bg-[#751932] shadow-lg hover:shadow-xl"
                   }`}
               >
-                {selectedRole
-                  ? `Register as ${selectedRole}`
-                  : "Select Role to Continue"}
+                {loading ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Registering...
+                  </span>
+                ) : selectedRole ? (
+                  `Register as ${selectedRole.name}`
+                ) : (
+                  "Select Role to Continue"
+                )}
               </button>
 
               <p className="text-sm text-gray-600 text-center mt-6 animate-fadeIn animation-delay-600">

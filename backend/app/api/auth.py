@@ -22,6 +22,7 @@ class LoginSchema(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+    user: dict
 
 @router.post("/register")
 def register(user: RegisterSchema, db: Session = Depends(get_db)):
@@ -47,21 +48,48 @@ def register(user: RegisterSchema, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_user)
     
-    return {"message": "User registered successfully", "user_id": str(db_user.id)}
+    # Create token for auto-login after registration
+    token = create_access_token({
+        "user_id": str(db_user.id),
+        "email": db_user.email,
+        "role_id": str(db_user.role_id)
+    })
+    
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": str(db_user.id),
+            "full_name": db_user.full_name,
+            "email": db_user.email,
+            "role": role.name
+        }
+    }
 
 @router.post("/login", response_model=TokenResponse)
 def login(data: LoginSchema, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == data.email).first()
 
-    if not user or not verify_password(data.password, user.password_hash):
+    # Check if user exists
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No account found with this email",
+        )
+    
+    # Check password
+    if not verify_password(data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid credentials",
+            detail="Invalid password",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
     if not user.is_active:
         raise HTTPException(status_code=403, detail="User account is inactive")
+
+    # Get role information
+    role = db.query(Role).filter(Role.id == user.role_id).first()
 
     token = create_access_token({
         "user_id": str(user.id),
@@ -69,4 +97,13 @@ def login(data: LoginSchema, db: Session = Depends(get_db)):
         "role_id": str(user.role_id)
     })
 
-    return {"access_token": token, "token_type": "bearer"}
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": str(user.id),
+            "full_name": user.full_name,
+            "email": user.email,
+            "role": role.name if role else "Unknown"
+        }
+    }

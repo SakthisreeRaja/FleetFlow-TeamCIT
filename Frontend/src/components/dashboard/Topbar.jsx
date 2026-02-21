@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import {
   MagnifyingGlassIcon,
   BellIcon,
@@ -12,12 +13,13 @@ function Topbar({ toggleSidebar }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  const userName = localStorage.getItem("userName") || "Guest User";
-  const userRole = localStorage.getItem("userRole") || "User";
+  const userName = user?.full_name || "Guest User";
+  const userRole = user?.role || "User";
 
   const handleLogout = () => {
-    localStorage.clear();
+    logout();
     navigate("/login");
   };
 

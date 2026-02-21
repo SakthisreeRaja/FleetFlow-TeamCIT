@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PlusIcon } from "@heroicons/react/24/outline";
+import { vehiclesService } from "../../services";
 import VehicleTable from "../../components/dashboard/VehicleTable";
 import VehicleRegistrationForm from "../../components/dashboard/VehicleRegistrationForm";
 import VehicleDetailModal from "../../components/dashboard/VehicleDetailModal";
@@ -8,48 +9,39 @@ function Vehicles() {
   const [showForm, setShowForm] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [editingVehicle, setEditingVehicle] = useState(null);
-  const [vehicles, setVehicles] = useState([
-    {
-      id: 1,
-      plate: "MH 00",
-      model: "TATA",
-      type: "Truck",
-      odometer: 45000,
-      maxPayload: "5000 kg",
-      status: "Ready",
-    },
-    {
-      id: 2,
-      plate: "DL 01",
-      model: "Ashok Leyland",
-      type: "Truck",
-      odometer: 62000,
-      maxPayload: "7000 kg",
-      status: "On Trip",
-    },
-    {
-      id: 3,
-      plate: "KA 02",
-      model: "Mahindra",
-      type: "Van",
-      odometer: 38000,
-      maxPayload: "2000 kg",
-      status: "Maintenance",
-    },
-  ]);
+  const [vehicles, setVehicles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const handleAddVehicle = (formData) => {
-    const newVehicle = {
-      id: vehicles.length + 1,
-      plate: formData.licensePlate,
-      model: formData.model,
-      type: formData.type,
-      odometer: parseInt(formData.initialOdometer),
-      maxPayload: formData.maxPayload,
-      status: "Ready",
-    };
-    setVehicles([...vehicles, newVehicle]);
-    setShowForm(false);
+  // Fetch vehicles from backend
+  useEffect(() => {
+    fetchVehicles();
+  }, []);
+
+  const fetchVehicles = async () => {
+    try {
+      setLoading(true);
+      const data = await vehiclesService.getVehicles();
+      setVehicles(data);
+      setError("");
+    } catch (err) {
+      setError("Failed to load vehicles. Please try again.");
+      console.error("Error fetching vehicles:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddVehicle = async (formData) => {
+    try {
+      await vehiclesService.createVehicle(formData);
+      await fetchVehicles();
+      setShowForm(false);
+      setEditingVehicle(null);
+    } catch (err) {
+      setError("Failed to add vehicle. Please try again.");
+      console.error("Error adding vehicle:", err);
+    }
   };
 
   const handleViewVehicle = (vehicle) => {
@@ -61,9 +53,15 @@ function Vehicles() {
     setShowForm(true);
   };
 
-  const handleDeleteVehicle = (id) => {
+  const handleDeleteVehicle = async (id) => {
     if (window.confirm("Are you sure you want to delete this vehicle?")) {
-      setVehicles(vehicles.filter((v) => v.id !== id));
+      try {
+        await vehiclesService.deleteVehicle(id);
+        await fetchVehicles();
+      } catch (err) {
+        setError("Failed to delete vehicle. Please try again.");
+        console.error("Error deleting vehicle:", err);
+      }
     }
   };
 
@@ -72,8 +70,26 @@ function Vehicles() {
     setEditingVehicle(null);
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#8B1E3F] mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading vehicles...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      {/* Error Message */}
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-600">{error}</p>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
