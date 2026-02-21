@@ -4,8 +4,14 @@ from fastapi.middleware.cors import CORSMiddleware
 # IMPORTANT: import all models BEFORE create_all
 from app.models import role, user, vehicle, driver, trip, maintenance, fuel, expense
 
+# Import database components
+from app.core.database import engine, Base
+
 # Import API routers
 from app.api import auth, users, roles, drivers, vehicles, trips, expenses, maintenance, fuel as fuel_api, dashboard, analytics, reports
+
+# Create all database tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="FleetFlow API 🚛")
 
