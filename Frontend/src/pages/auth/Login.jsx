@@ -1,10 +1,15 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import bgImage from "../../assets/auth-bg.png"; // adjust if inside images folder
 
 function Login() {
+  const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState(null);
   const [showRoles, setShowRoles] = useState(false);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
   const roles = [
     "Manager",
@@ -16,6 +21,26 @@ function Login() {
   const handleRoleSelect = (role) => {
     setSelectedRole(role);
     setShowRoles(false);
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (selectedRole && formData.email && formData.password) {
+      // Store user info in localStorage
+      localStorage.setItem("userName", formData.email.split("@")[0]);
+      localStorage.setItem("userRole", selectedRole);
+      localStorage.setItem("isAuthenticated", "true");
+      
+      // Navigate to dashboard
+      navigate("/dashboard");
+    }
   };
 
   return (
@@ -80,14 +105,18 @@ function Login() {
             </div>
 
             {/* Inputs */}
-            <div className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="animate-slideInDown animation-delay-200">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email
                 </label>
                 <input
                   type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   placeholder="Enter your email"
+                  required
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all duration-300"
                 />
               </div>
@@ -98,12 +127,17 @@ function Login() {
                 </label>
                 <input
                   type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
                   placeholder="Enter your password"
+                  required
                   className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-[#8B1E3F] focus:border-transparent transition-all duration-300"
                 />
               </div>
 
               <button
+                type="submit"
                 disabled={!selectedRole}
                 className={`w-full py-3 rounded-lg text-white font-medium transition-all duration-300 transform hover:scale-[1.02] animate-slideInUp animation-delay-400
                   ${
@@ -126,7 +160,7 @@ function Login() {
                   Register
                 </Link>
               </p>
-            </div>
+            </form>
 
           </div>
         </div>
