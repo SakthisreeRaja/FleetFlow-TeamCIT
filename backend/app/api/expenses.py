@@ -3,12 +3,25 @@ from sqlalchemy.orm import Session
 from uuid import UUID
 from app.core.dependencies import get_db
 from app.models.expense import Expense
+from app.models.trip import Trip
+from app.models.vehicle import Vehicle
 from app.schemas.expense import ExpenseCreate, ExpenseResponse
 
 router = APIRouter(prefix="/expenses", tags=["Expenses"])
 
 @router.post("/", response_model=ExpenseResponse)
 def add_expense(data: ExpenseCreate, db: Session = Depends(get_db)):
+    # Validate trip exists if provided
+    if data.trip_id:
+        trip = db.query(Trip).filter(Trip.id == data.trip_id).first()
+        if not trip:
+            raise HTTPException(status_code=404, detail=f"Trip with id {data.trip_id} not found")
+    
+    # Validate vehicle exists
+    vehicle = db.query(Vehicle).filter(Vehicle.id == data.vehicle_id).first()
+    if not vehicle:
+        raise HTTPException(status_code=404, detail=f"Vehicle with id {data.vehicle_id} not found")
+    
     expense = Expense(**data.model_dump())
     db.add(expense)
     db.commit()

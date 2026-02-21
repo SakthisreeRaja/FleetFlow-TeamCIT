@@ -10,6 +10,11 @@ router = APIRouter(prefix="/drivers", tags=["Drivers"])
 
 @router.post("/", response_model=DriverResponse)
 def create_driver(driver: DriverCreate, db: Session = Depends(get_db)):
+    # Check if license number already exists
+    existing = db.query(Driver).filter(Driver.license_number == driver.license_number).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="Driver with this license number already exists")
+    
     db_driver = Driver(**driver.model_dump())
     db.add(db_driver)
     db.commit()
