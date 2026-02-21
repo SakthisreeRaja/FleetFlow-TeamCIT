@@ -41,7 +41,12 @@ function Sidebar({ isOpen, setIsOpen }) {
     >
       {/* Sidebar Header */}
       <div className="p-6 border-b border-gray-200">
-        <div className={`flex items-center ${isOpen ? "justify-between" : "justify-center"}`}>
+        <div className={`flex items-center gap-3 ${isOpen ? "justify-start" : "justify-center"}`}>
+          <img 
+            src="/logo.png" 
+            alt="FleetFlow Logo" 
+            className="w-10 h-10 object-contain"
+          />
           {isOpen && (
             <h2 className="text-xl font-bold text-[#8B1E3F]">FleetFlow</h2>
           )}

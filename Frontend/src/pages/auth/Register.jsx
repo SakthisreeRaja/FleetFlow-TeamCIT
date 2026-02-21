@@ -45,7 +45,7 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row relative">
+    <div className="h-screen flex flex-col lg:flex-row relative overflow-hidden">
       {/* Left Side - Image */}
       <div className="lg:w-1/2 h-64 lg:h-screen relative overflow-hidden">
         <img
@@ -59,12 +59,18 @@ function Register() {
       </div>
 
       {/* Right Side - Form */}
-      <div className="lg:w-1/2 flex items-center justify-center p-6 lg:p-12 bg-[#FDF2F5] animate-fadeIn relative">
-        <div className="w-full max-w-md animate-slideInRight">
+      <div className="lg:w-1/2 h-screen overflow-y-auto bg-[#FDF2F5] animate-fadeIn relative">
+        <div className="min-h-full flex items-center justify-center p-6 lg:p-12">
+          <div className="w-full max-w-md animate-slideInRight">
           <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-8 lg:p-10 transition-all duration-300 hover:shadow-3xl">
 
             {/* Company Branding */}
             <div className="text-center mb-8 animate-fadeInScale">
+              <img 
+                src="/logo.png" 
+                alt="FleetFlow Logo" 
+                className="w-16 h-16 mx-auto mb-4 object-contain"
+              />
               <h1 className="text-5xl font-bold mb-3 tracking-tight bg-linear-to-r from-[#8B1E3F] via-[#A52342] to-[#8B1E3F] bg-clip-text text-transparent animate-gradientFlow">
                 FleetFlow
               </h1>
@@ -192,6 +198,7 @@ function Register() {
             </form>
 
           </div>
+        </div>
         </div>
       </div>
     </div>
